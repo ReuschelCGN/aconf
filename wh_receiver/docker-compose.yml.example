@@ -1,0 +1,15 @@
+version: '2.4'
+services:
+  aconfwr:
+    container_name: aconfwr
+    build:
+      context: ./wh_receiver
+    restart: always
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+      - ./wh_receiver/config.ini:/usr/src/app/config.ini
+    networks:
+      - default
+    ports:
+      - "5050:5050"
