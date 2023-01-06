@@ -60,13 +60,13 @@ install_atlas(){
 mount -o remount,rw /system
 mount -o remount,rw /system/etc/init.d
 if [ -f /sdcard/useAconfDevelop ] ;then
-  until /system/bin/curl -s -k -L --fail --show-error -o /system/etc/init.d/55atlas https://raw.githubusercontent.com/dkmur/aconf/develop/55atlas || { echo "`date +%Y-%m-%d_%T` Download 55atlas failed, exit script" >> $logfile ; exit 1; } ;do
+  until /system/bin/curl -s -k -L --fail --show-error -o /system/etc/init.d/55atlas https://raw.githubusercontent.com/ReuschelCGN/aconf/develop/55atlas || { echo "`date +%Y-%m-%d_%T` Download 55atlas failed, exit script" >> $logfile ; exit 1; } ;do
     sleep 2
   done
   chmod +x /system/etc/init.d/55atlas
   echo "`date +%Y-%m-%d_%T` 55atlas installed, from develop" >> $logfile
 else
-  until /system/bin/curl -s -k -L --fail --show-error -o /system/etc/init.d/55atlas https://raw.githubusercontent.com/dkmur/aconf/master/55atlas || { echo "`date +%Y-%m-%d_%T` Download 55atlas failed, exit script" >> $logfile ; exit 1; } ;do
+  until /system/bin/curl -s -k -L --fail --show-error -o /system/etc/init.d/55atlas https://raw.githubusercontent.com/ReuschelCGN/aconf/master/55atlas || { echo "`date +%Y-%m-%d_%T` Download 55atlas failed, exit script" >> $logfile ; exit 1; } ;do
     sleep 2
   done
   chmod +x /system/etc/init.d/55atlas
@@ -75,13 +75,13 @@ fi
 
 # install atlas monitor
 if [ -f /sdcard/useAconfDevelop ] ;then
-  until /system/bin/curl -s -k -L --fail --show-error -o /system/bin/atlas_monitor.sh https://raw.githubusercontent.com/dkmur/aconf/develop/atlas_monitor.sh || { echo "`date +%Y-%m-%d_%T` Download atlas_monitor failed, exit script" >> $logfile ; exit 1; } ;do
+  until /system/bin/curl -s -k -L --fail --show-error -o /system/bin/atlas_monitor.sh https://raw.githubusercontent.com/ReuschelCGN/aconf/develop/atlas_monitor.sh || { echo "`date +%Y-%m-%d_%T` Download atlas_monitor failed, exit script" >> $logfile ; exit 1; } ;do
     sleep 2
   done
   chmod +x /system/bin/atlas_monitor.sh
   echo "`date +%Y-%m-%d_%T` Atlas monitor installed, from develop" >> $logfile
 else
-  until /system/bin/curl -s -k -L --fail --show-error -o /system/bin/atlas_monitor.sh https://raw.githubusercontent.com/dkmur/aconf/master/atlas_monitor.sh || { echo "`date +%Y-%m-%d_%T` Download atlas_monitor failed, exit script" >> $logfile ; exit 1; } ;do
+  until /system/bin/curl -s -k -L --fail --show-error -o /system/bin/atlas_monitor.sh https://raw.githubusercontent.com/ReuschelCGN/aconf/master/atlas_monitor.sh || { echo "`date +%Y-%m-%d_%T` Download atlas_monitor failed, exit script" >> $logfile ; exit 1; } ;do
     sleep 2
   done
   chmod +x /system/bin/atlas_monitor.sh
@@ -90,13 +90,13 @@ fi
 
 # install ATVdetails sender
 if [ -f /sdcard/useAconfDevelop ] ;then
-  until /system/bin/curl -s -k -L --fail --show-error -o /system/bin/ATVdetailsSender.sh https://raw.githubusercontent.com/dkmur/aconf/develop/ATVdetailsSender.sh || { echo "`date +%Y-%m-%d_%T` Download ATVdetailsSender failed, exit script" >> $logfile ; exit 1; } ;do
+  until /system/bin/curl -s -k -L --fail --show-error -o /system/bin/ATVdetailsSender.sh https://raw.githubusercontent.com/ReuschelCGN/aconf/develop/ATVdetailsSender.sh || { echo "`date +%Y-%m-%d_%T` Download ATVdetailsSender failed, exit script" >> $logfile ; exit 1; } ;do
     sleep 2
   done
   chmod +x /system/bin/ATVdetailsSender.sh
   echo "`date +%Y-%m-%d_%T` ATVdetails sender installed, from develop" >> $logfile
 else
-  until /system/bin/curl -s -k -L --fail --show-error -o /system/bin/ATVdetailsSender.sh https://raw.githubusercontent.com/dkmur/aconf/master/ATVdetailsSender.sh || { echo "`date +%Y-%m-%d_%T` Download ATVdetailsSender failed, exit script" >> $logfile ; exit 1; } ;do
+  until /system/bin/curl -s -k -L --fail --show-error -o /system/bin/ATVdetailsSender.sh https://raw.githubusercontent.com/ReuschelCGN/aconf/master/ATVdetailsSender.sh || { echo "`date +%Y-%m-%d_%T` Download ATVdetailsSender failed, exit script" >> $logfile ; exit 1; } ;do
     sleep 2
   done
   chmod +x /system/bin/ATVdetailsSender.sh
@@ -313,12 +313,12 @@ if [[ $(basename $0) != "atlas_new.sh" ]] ;then
   mount -o remount,rw /system
   oldsh=$(head -2 /system/bin/atlas.sh | grep '# version' | awk '{ print $NF }')
   if [ -f /sdcard/useAconfDevelop ] ;then
-    until /system/bin/curl -s -k -L --fail --show-error -o /system/bin/atlas_new.sh https://raw.githubusercontent.com/dkmur/aconf/develop/atlas.sh || { echo "`date +%Y-%m-%d_%T` Download atlas.sh failed, exit script" >> $logfile ; exit 1; } ;do
+    until /system/bin/curl -s -k -L --fail --show-error -o /system/bin/atlas_new.sh https://raw.githubusercontent.com/ReuschelCGN/aconf/develop/atlas.sh || { echo "`date +%Y-%m-%d_%T` Download atlas.sh failed, exit script" >> $logfile ; exit 1; } ;do
       sleep 2
     done
     chmod +x /system/bin/atlas_new.sh
   else
-    until /system/bin/curl -s -k -L --fail --show-error -o /system/bin/atlas_new.sh https://raw.githubusercontent.com/dkmur/aconf/master/atlas.sh || { echo "`date +%Y-%m-%d_%T` Download atlas.sh failed, exit script" >> $logfile ; exit 1; } ;do
+    until /system/bin/curl -s -k -L --fail --show-error -o /system/bin/atlas_new.sh https://raw.githubusercontent.com/ReuschelCGN/aconf/master/atlas.sh || { echo "`date +%Y-%m-%d_%T` Download atlas.sh failed, exit script" >> $logfile ; exit 1; } ;do
       sleep 2
     done
     chmod +x /system/bin/atlas_new.sh
@@ -357,20 +357,20 @@ if [[ $(basename $0) = "atlas_new.sh" ]] ;then
   old55=$(head -2 /system/etc/init.d/55atlas | grep '# version' | awk '{ print $NF }')
   if [ $Ver55atlas != $old55 ] ;then
     mount -o remount,rw /system
-	mount -o remount,rw /system/etc/init.d
+    mount -o remount,rw /system/etc/init.d
     if [ -f /sdcard/useAconfDevelop ] ;then
-      until /system/bin/curl -s -k -L --fail --show-error -o /system/etc/init.d/55atlas https://raw.githubusercontent.com/dkmur/aconf/develop/55atlas || { echo "`date +%Y-%m-%d_%T` Download 55atlas failed, exit script" >> $logfile ; exit 1; } ;do
+      until /system/bin/curl -s -k -L --fail --show-error -o /system/etc/init.d/55atlas https://raw.githubusercontent.com/ReuschelCGN/aconf/develop/55atlas || { echo "`date +%Y-%m-%d_%T` Download 55atlas failed, exit script" >> $logfile ; exit 1; } ;do
         sleep 2
       done
       chmod +x /system/etc/init.d/55atlas
     else
-      until /system/bin/curl -s -k -L --fail --show-error -o /system/etc/init.d/55atlas https://raw.githubusercontent.com/dkmur/aconf/master/55atlas || { echo "`date +%Y-%m-%d_%T` Download 55atlas failed, exit script" >> $logfile ; exit 1; } ;do
+      until /system/bin/curl -s -k -L --fail --show-error -o /system/etc/init.d/55atlas https://raw.githubusercontent.com/ReuschelCGN/aconf/master/55atlas || { echo "`date +%Y-%m-%d_%T` Download 55atlas failed, exit script" >> $logfile ; exit 1; } ;do
         sleep 2
       done
       chmod +x /system/etc/init.d/55atlas
     fi
     mount -o remount,ro /system
-	mount -o remount,ro /system/etc/init.d
+    mount -o remount,ro /system/etc/init.d
     new55=$(head -2 /system/etc/init.d/55atlas | grep '# version' | awk '{ print $NF }')
     echo "`date +%Y-%m-%d_%T` 55atlas $old55=>$new55" >> $logfile
   fi
@@ -382,12 +382,12 @@ if [[ $(basename $0) = "atlas_new.sh" ]] ;then
   if [ $VerMonitor != $oldMonitor ] ;then
     mount -o remount,rw /system
     if [ -f /sdcard/useAconfDevelop ] ;then
-      until /system/bin/curl -s -k -L --fail --show-error -o /system/bin/atlas_monitor.sh https://raw.githubusercontent.com/dkmur/aconf/develop/atlas_monitor.sh || { echo "`date +%Y-%m-%d_%T` Download atlas_monitor failed, exit script" >> $logfile ; exit 1; } ;do
+      until /system/bin/curl -s -k -L --fail --show-error -o /system/bin/atlas_monitor.sh https://raw.githubusercontent.com/ReuschelCGN/aconf/develop/atlas_monitor.sh || { echo "`date +%Y-%m-%d_%T` Download atlas_monitor failed, exit script" >> $logfile ; exit 1; } ;do
         sleep 2
       done
       chmod +x /system/bin/atlas_monitor.sh
     else
-      until /system/bin/curl -s -k -L --fail --show-error -o /system/bin/atlas_monitor.sh https://raw.githubusercontent.com/dkmur/aconf/master/atlas_monitor.sh || { echo "`date +%Y-%m-%d_%T` Download atlas_monitor failed, exit script" >> $logfile ; exit 1; } ;do
+      until /system/bin/curl -s -k -L --fail --show-error -o /system/bin/atlas_monitor.sh https://raw.githubusercontent.com/ReuschelCGN/aconf/master/atlas_monitor.sh || { echo "`date +%Y-%m-%d_%T` Download atlas_monitor failed, exit script" >> $logfile ; exit 1; } ;do
         sleep 2
       done
       chmod +x /system/bin/atlas_monitor.sh
@@ -416,13 +416,13 @@ if [[ $(basename $0) = "atlas_new.sh" ]] ;then
   if [ $VerATVsender != $oldSender ] ;then
     mount -o remount,rw /system
     if [ -f /sdcard/useAconfDevelop ] ;then
-      until /system/bin/curl -s -k -L --fail --show-error -o /system/bin/ATVdetailsSender.sh https://raw.githubusercontent.com/dkmur/aconf/develop/ATVdetailsSender.sh || { echo "`date +%Y-%m-%d_%T` Download ATVdetailsSender failed, exit script" >> $logfile ; exit 1; } ;do
+      until /system/bin/curl -s -k -L --fail --show-error -o /system/bin/ATVdetailsSender.sh https://raw.githubusercontent.com/ReuschelCGN/aconf/develop/ATVdetailsSender.sh || { echo "`date +%Y-%m-%d_%T` Download ATVdetailsSender failed, exit script" >> $logfile ; exit 1; } ;do
         sleep 2
       done
       chmod +x /system/bin/ATVdetailsSender.sh
       echo "`date +%Y-%m-%d_%T` ATVdetails sender installed, from develop" >> $logfile
     else
-      until /system/bin/curl -s -k -L --fail --show-error -o /system/bin/ATVdetailsSender.sh https://raw.githubusercontent.com/dkmur/aconf/master/ATVdetailsSender.sh || { echo "`date +%Y-%m-%d_%T` Download ATVdetailsSender failed, exit script" >> $logfile ; exit 1; } ;do
+      until /system/bin/curl -s -k -L --fail --show-error -o /system/bin/ATVdetailsSender.sh https://raw.githubusercontent.com/ReuschelCGN/aconf/master/ATVdetailsSender.sh || { echo "`date +%Y-%m-%d_%T` Download ATVdetailsSender failed, exit script" >> $logfile ; exit 1; } ;do
         sleep 2
       done
       chmod +x /system/bin/ATVdetailsSender.sh
