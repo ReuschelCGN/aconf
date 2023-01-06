@@ -30,9 +30,9 @@ The directory should contain the following files :
 Hers is a typical example of directory content :
 
 ```
-PokemodAtlas-Public-v22050101.apk
-pokemongo_arm64-v8a_0.235.0.apk
-pokemongo_armeabi-v7a_0.235.0.apk
+PokemodAtlas-Public-v22071801.apk
+pokemongo_arm64-v8a_0.249.2.apk
+pokemongo_armeabi-v7a_0.249.2.apk
 atlas_config.json
 versions
 ```
@@ -57,8 +57,8 @@ Please note that `"deviceName":"dummy"` should not be changed. The script will a
 Here is the content of the `versions` file :
 
 ```
-pogo=0.235.0
-atlas=v22050101
+pogo=0.249.2
+atlas=v22071801
 rgc=off
 
 # Settings for Atlas monitor script
@@ -134,6 +134,6 @@ Default port is 3000 and you can expose Grafana to the web for easy access.
 If you don't run madmin and don't want to run it, you still can push the install of the atlas script manually by connecting to the device using ADB and using the following on command line (update `mydownloadfolder.com`to your own folder location + add your user and password ) :
 
 ```
-su -c 'file='/data/local/aconf_download' && touch $file  && echo url=https://mydownloadfolder.com > $file  && echo authUser='' >> $file && echo authPass='' >> $file && mount -o remount,rw /system && /system/bin/curl -L -o /system/bin/atlas.sh -k -s https://raw.githubusercontent.com/dkmur/aconf/master/atlas.sh && chmod +x /system/bin/atlas.sh && /system/bin/atlas.sh -ia'
+su -c 'file='/data/local/aconf_download' && touch $file  && echo url=https://mydownloadfolder.com > $file  && echo authUser='' >> $file && echo authPass='' >> $file && mount -o remount,rw /system && /system/bin/curl -L -o /system/bin/atlas.sh -k -s https://raw.githubusercontent.com/ReuschelCGN/aconf/develop/atlas.sh && chmod +x /system/bin/atlas.sh && /system/bin/atlas.sh -ia'
 ```
 
