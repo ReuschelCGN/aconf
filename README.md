@@ -137,3 +137,5 @@ If you don't run madmin and don't want to run it, you still can push the install
 su -c 'file='/data/local/aconf_download' && touch $file  && echo url=https://mydownloadfolder.com > $file  && echo authUser='' >> $file && echo authPass='' >> $file && mount -o remount,rw /system && /system/bin/curl -L -o /system/bin/atlas.sh -k -s https://raw.githubusercontent.com/ReuschelCGN/aconf/master/atlas.sh && chmod +x /system/bin/atlas.sh && /system/bin/atlas.sh -ia'
 ```
 
+# Additional IMPORTANT Infos:
+This is a Fork from DKMUR Atlas Configuration Tool -> https://github.com/dkmur/aconf
