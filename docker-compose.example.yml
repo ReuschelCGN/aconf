@@ -1,0 +1,18 @@
+version: '3.1'
+services:
+  aconf:
+    container_name: aconf
+    build: ./aconf
+    restart: always
+    volumes:
+      - ./aconf/atlas_config.json:/var/www/html/atlas_config.json
+      - ./aconf/versions:/var/www/html/versions
+      - ./aconf/apk:/var/www/html/apk
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - "4008:80"
+    networks:
+      - default
+    logging:
+      driver: none
