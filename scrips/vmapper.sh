@@ -34,7 +34,7 @@ echo "`date +%Y-%m-%d_%T` ## Executing $(basename $0) $@" >> $logfile
 if [ -f /sdcard/useVMCdevelop ] ;then
    branch="https://raw.githubusercontent.com/v-mapper/vmconf/develop"
 else
-   branch="https://raw.githubusercontent.com/ReuschelCGN/aconf/tree/vconf/scrips"
+   branch="https://raw.githubusercontent.com/ReuschelCGN/aconf/vconf/scrips"
 fi
 
 ########## Functions
