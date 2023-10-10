@@ -96,7 +96,7 @@ install_vmapper_wizard(){
 
    ## At this stage vmapper isn't in magisk db nor had it generated a config folder
    am start -n de.vahrmap.vmapper/.MainActivity
-   sleep 2
+   sleep 10
    uid=$(stat -c %u /data/data/de.vahrmap.vmapper/)
    am force-stop de.vahrmap.vmapper
    sleep 2
