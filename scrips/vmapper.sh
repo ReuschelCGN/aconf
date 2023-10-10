@@ -99,7 +99,11 @@ install_vmapper_wizard(){
    sleep 20
    uid=$(stat -c %u /data/data/de.vahrmap.vmapper/)
    am force-stop de.vahrmap.vmapper
-   sleep 5
+   sleep 2
+
+   ## Grant su access
+   magisk --sqlite "REPLACE INTO policies (uid, policy, until, logging, notification) VALUES (\"$uid\", 2, 0, 1, 1);"
+   echo "`date +%Y-%m-%d_%T` VM install: vmapper granted su" >> $logfile
 
    ## Create config file
    create_vmapper_xml
@@ -125,7 +129,7 @@ install_vmapper_wizard(){
    if [ -f /system/etc/init.d/42mad ] || [ -f /system/etc/init.d/16mad ] && [ ! -f /system/etc/init.d/55vmapper ] ;then
       mount -o remount,rw /
       until /system/bin/curl -s -k -L --fail --show-error -o /system/etc/init.d/55vmapper $branch/55vmapper || { echo "`date +%Y-%m-%d_%T` VM install: download 55vmapper failed, exit" >> $logfile ; exit 1; } ;do
-     sleep 2
+	 sleep 2
       done
       chmod +x /system/etc/init.d/55vmapper
       #  mount -o remount,ro /
@@ -136,7 +140,7 @@ install_vmapper_wizard(){
    if [ ! -f /system/etc/init.d/56vmwatchdog ] ;then
       mount -o remount,rw /
       until /system/bin/curl -s -k -L --fail --show-error -o /system/etc/init.d/56vmwatchdog $branch/56vmwatchdog || { echo "`date +%Y-%m-%d_%T` VM install: download 56vmwatchdog failed, exit" >> $logfile ; exit 1; } ;do
-     sleep 2
+	 sleep 2
       done
       chmod +x /system/etc/init.d/56vmwatchdog
       #  mount -o remount,ro /
@@ -168,17 +172,17 @@ vmapper_wizard(){
    else
       checkupdate "$installedver" "$newver"
       if [ $need_update -eq 1 ]; then
-     echo "`date +%Y-%m-%d_%T` New vmapper version detected in wizard, updating $installedver=>$newver" >> $logfile
-     /system/bin/rm -f /sdcard/Download/vmapper.apk
-     until /system/bin/curl -k -s -L --fail --show-error -o /sdcard/Download/vmapper.apk -u $authuser:$authpassword -H "origin: $origin" "$server/mad_apk/vm/download" || { echo "`date +%Y-%m-%d_%T` Download vmapper failed, exit" >> $logfile ; exit 1; } ;do
-        sleep 2
-     done
+	 echo "`date +%Y-%m-%d_%T` New vmapper version detected in wizard, updating $installedver=>$newver" >> $logfile
+	 /system/bin/rm -f /sdcard/Download/vmapper.apk
+	 until /system/bin/curl -k -s -L --fail --show-error -o /sdcard/Download/vmapper.apk -u $authuser:$authpassword -H "origin: $origin" "$server/mad_apk/vm/download" || { echo "`date +%Y-%m-%d_%T` Download vmapper failed, exit" >> $logfile ; exit 1; } ;do
+	    sleep 2
+	 done
 
-     # set vmapper to be installed
-     vm_install="install"
+	 # set vmapper to be installed
+	 vm_install="install"
       else
-     vm_install="skip"
-     echo "`date +%Y-%m-%d_%T` Vmapper already on latest version" >> $logfile
+	 vm_install="skip"
+	 echo "`date +%Y-%m-%d_%T` Vmapper already on latest version" >> $logfile
       fi
    fi
 }
@@ -215,11 +219,11 @@ downgrade_vmapper_wizard(){
 
    # grant SU
    am start -n de.vahrmap.vmapper/.MainActivity
-   sleep 5
+   sleep 20
    uid=$(stat -c %u /data/data/de.vahrmap.vmapper/)
    am force-stop de.vahrmap.vmapper
    sleep 2
-   sqlite3 /data/adb/magisk.db "INSERT INTO policies (uid,package_name,policy,until,logging,notification) VALUES(\"$uid\",'de.vahrmap.vmapper',2,0,1,1)"
+   magisk --sqlite "REPLACE INTO policies (uid, policy, until, logging, notification) VALUES (\"$uid\", 2, 0, 1, 1);"
    echo "`date +%Y-%m-%d_%T` VM downgrade: vmapper granted SU access" >> $logfile
 
    # (re)create xml and start vmapper+pogo
@@ -242,7 +246,7 @@ pogo_wizard(){
       echo "`date +%Y-%m-%d_%T` New pogo version detected in wizard, updating $installedver=>$newver" >> $logfile
       /system/bin/rm -f /sdcard/Download/pogo.apk
       until /system/bin/curl -k -s -L --fail --show-error -o /sdcard/Download/pogo.apk -u $authuser:$authpassword -H "origin: $origin" "$server/mad_apk/pogo/$arch/download" || { echo "`date +%Y-%m-%d_%T` Download pogo failed, exit" >> $logfile ; exit 1; } ;do
-     sleep 2
+	 sleep 2
       done
 
       # set pogo to be installed
@@ -289,18 +293,18 @@ rgc_wizard(){
       installedver="$(dumpsys package de.grennith.rgc.remotegpscontroller 2>/dev/null|awk -F'=' '/versionName/{print $2}'|head -n1)"
 
       if checkupdate "$newver" "$installedver" ;then
-     echo "`date +%Y-%m-%d_%T` New rgc version detected in wizard, updating $installedver=>$newver" >> $logfile
-     rm -f /sdcard/Download/RemoteGpsController.apk
-     until /system/bin/curl -o /sdcard/Download/RemoteGpsController.apk  -s -k -L --fail --show-error -u $authuser:$authpassword -H "origin: $origin" "$server/mad_apk/rgc/download" || { echo "`date +%Y-%m-%d_%T` Download rgc failed, exit" >> $logfile ; exit 1; } ;do
-        sleep 2
-     done
+	 echo "`date +%Y-%m-%d_%T` New rgc version detected in wizard, updating $installedver=>$newver" >> $logfile
+	 rm -f /sdcard/Download/RemoteGpsController.apk
+	 until /system/bin/curl -o /sdcard/Download/RemoteGpsController.apk  -s -k -L --fail --show-error -u $authuser:$authpassword -H "origin: $origin" "$server/mad_apk/rgc/download" || { echo "`date +%Y-%m-%d_%T` Download rgc failed, exit" >> $logfile ; exit 1; } ;do
+	    sleep 2
+	 done
 
-     # set rgc to be installed
-     rgc_install="install"
+	 # set rgc to be installed
+	 rgc_install="install"
 
       else
-     rgc_install="skip"
-     echo "`date +%Y-%m-%d_%T` RGC already on latest version" >> $logfile
+	 rgc_install="skip"
+	 echo "`date +%Y-%m-%d_%T` RGC already on latest version" >> $logfile
       fi
    else
       rgc_install="skip"
@@ -367,34 +371,34 @@ update_all(){
    if [ ! -z "$vm_install" ] && [ ! -z "$pogo_install" ] ;then
       echo "`date +%Y-%m-%d_%T` All updates checked and downloaded if needed" >> $logfile
       if [ "$vm_install" = "install" ] ;then
-     echo "`date +%Y-%m-%d_%T` Install vmapper" >> $logfile
-     # kill pogo
-     am force-stop com.nianticlabs.pokemongo
-     # install vmapper
-     /system/bin/pm install -r /sdcard/Download/vmapper.apk
-     /system/bin/rm -f /sdcard/Download/vmapper.apk
-     # if no pogo update we restart both now
-     if [ "$pogo_install" != "install" ] ;then
-        echo "`date +%Y-%m-%d_%T` No pogo update, starting vmapper+pogo" >> $logfile
-        am force-stop de.vahrmap.vmapper
-        am broadcast -n de.vahrmap.vmapper/.RestartService
-        sleep 5
-        monkey -p com.nianticlabs.pokemongo -c android.intent.category.LAUNCHER 1
-     fi
+	 echo "`date +%Y-%m-%d_%T` Install vmapper" >> $logfile
+	 # kill pogo
+	 am force-stop com.nianticlabs.pokemongo
+	 # install vmapper
+	 /system/bin/pm install -r /sdcard/Download/vmapper.apk
+	 /system/bin/rm -f /sdcard/Download/vmapper.apk
+	 # if no pogo update we restart both now
+	 if [ "$pogo_install" != "install" ] ;then
+	    echo "`date +%Y-%m-%d_%T` No pogo update, starting vmapper+pogo" >> $logfile
+	    am force-stop de.vahrmap.vmapper
+	    am broadcast -n de.vahrmap.vmapper/.RestartService
+	    sleep 5
+	    monkey -p com.nianticlabs.pokemongo -c android.intent.category.LAUNCHER 1
+	 fi
       fi
       if [ "$pogo_install" = "install" ] ;then
-     echo "`date +%Y-%m-%d_%T` Install pogo, restart vmapper and start pogo" >> $logfile
-     # install pogo
-     /system/bin/pm install -r /sdcard/Download/pogo.apk
-     /system/bin/rm -f /sdcard/Download/pogo.apk
-     # restart vmapper + start pogo
-     am force-stop de.vahrmap.vmapper
-     am broadcast -n de.vahrmap.vmapper/.RestartService
-     sleep 5
-     monkey -p com.nianticlabs.pokemongo -c android.intent.category.LAUNCHER 1
+	 echo "`date +%Y-%m-%d_%T` Install pogo, restart vmapper and start pogo" >> $logfile
+	 # install pogo
+	 /system/bin/pm install -r /sdcard/Download/pogo.apk
+	 /system/bin/rm -f /sdcard/Download/pogo.apk
+	 # restart vmapper + start pogo
+	 am force-stop de.vahrmap.vmapper
+	 am broadcast -n de.vahrmap.vmapper/.RestartService
+	 sleep 5
+	 monkey -p com.nianticlabs.pokemongo -c android.intent.category.LAUNCHER 1
       fi
       if [ "$vm_install" != "install" ] && [ "$pogo_install" != "install" ] ;then
-     echo "`date +%Y-%m-%d_%T` Nothing to install" >> $logfile
+	 echo "`date +%Y-%m-%d_%T` Nothing to install" >> $logfile
       fi
    fi
 }
@@ -448,12 +452,12 @@ if [[ $(basename $0) = "vmapper_new.sh" ]] ;then
    if [[ -f /system/etc/init.d/55vmapper ]] ;then
       old55=$(head -2 /system/etc/init.d/55vmapper | grep '# version' | awk '{ print $NF }')
       if [ $Ver55vmapper != $old55 ] ;then
-     until /system/bin/curl -s -k -L --fail --show-error -o /system/etc/init.d/55vmapper $branch/55vmapper || { echo "`date +%Y-%m-%d_%T` Download 55vmapper failed, exit" >> $logfile ; exit 1; } ;do
-        sleep 2
-     done
-     chmod +x /system/etc/init.d/55vmapper
-     new55=$(head -2 /system/etc/init.d/55vmapper | grep '# version' | awk '{ print $NF }')
-     echo "`date +%Y-%m-%d_%T` 55vmapper $old55=>$new55" >> $logfile
+	 until /system/bin/curl -s -k -L --fail --show-error -o /system/etc/init.d/55vmapper $branch/55vmapper || { echo "`date +%Y-%m-%d_%T` Download 55vmapper failed, exit" >> $logfile ; exit 1; } ;do
+	    sleep 2
+	 done
+	 chmod +x /system/etc/init.d/55vmapper
+	 new55=$(head -2 /system/etc/init.d/55vmapper | grep '# version' | awk '{ print $NF }')
+	 echo "`date +%Y-%m-%d_%T` 55vmapper $old55=>$new55" >> $logfile
       fi
    fi
 
@@ -461,12 +465,12 @@ if [[ $(basename $0) = "vmapper_new.sh" ]] ;then
    if [[ -f /system/etc/init.d/42vmapper ]] ;then
       old42=$(head -2 /system/etc/init.d/42vmapper | grep '# version' | awk '{ print $NF }')
       if [ $Ver42vmapper != $old42 ] ;then
-     until /system/bin/curl -s -k -L --fail --show-error -o /system/etc/init.d/42vmapper $branch/42vmapper || { echo "`date +%Y-%m-%d_%T` Download 42vmapper failed, exit" >> $logfile ; exit 1; } ;do
-        sleep 2
-     done
-     chmod +x /system/etc/init.d/42vmapper
-     new42=$(head -2 /system/etc/init.d/42vmapper | grep '# version' | awk '{ print $NF }')
-     echo "`date +%Y-%m-%d_%T` 42vmapper $old42=>$new42" >> $logfile
+	 until /system/bin/curl -s -k -L --fail --show-error -o /system/etc/init.d/42vmapper $branch/42vmapper || { echo "`date +%Y-%m-%d_%T` Download 42vmapper failed, exit" >> $logfile ; exit 1; } ;do
+	    sleep 2
+	 done
+	 chmod +x /system/etc/init.d/42vmapper
+	 new42=$(head -2 /system/etc/init.d/42vmapper | grep '# version' | awk '{ print $NF }')
+	 echo "`date +%Y-%m-%d_%T` 42vmapper $old42=>$new42" >> $logfile
       fi
    fi
 
@@ -474,12 +478,12 @@ if [[ $(basename $0) = "vmapper_new.sh" ]] ;then
    if [[ -f /system/etc/init.d/56vmwatchdog ]] ;then
       old56=$(head -2 /system/etc/init.d/56vmwatchdog | grep '# version' | awk '{ print $NF }')
       if [ $Ver56vmwatchdog != $old56 ] ;then
-     until /system/bin/curl -s -k -L --fail --show-error -o /system/etc/init.d/56vmwatchdog $branch/56vmwatchdog || { echo "`date +%Y-%m-%d_%T` Download 56vmwatchdog failed, exit" >> $logfile ; exit 1; } ;do
-        sleep 2
-     done
-     chmod +x /system/etc/init.d/56vmwatchdog
-     new56=$(head -2 /system/etc/init.d/56vmwatchdog | grep '# version' | awk '{ print $NF }')
-     echo "`date +%Y-%m-%d_%T` 56vmwatchdog $old56=>$new56" >> $logfile
+	 until /system/bin/curl -s -k -L --fail --show-error -o /system/etc/init.d/56vmwatchdog $branch/56vmwatchdog || { echo "`date +%Y-%m-%d_%T` Download 56vmwatchdog failed, exit" >> $logfile ; exit 1; } ;do
+	    sleep 2
+	 done
+	 chmod +x /system/etc/init.d/56vmwatchdog
+	 new56=$(head -2 /system/etc/init.d/56vmwatchdog | grep '# version' | awk '{ print $NF }')
+	 echo "`date +%Y-%m-%d_%T` 56vmwatchdog $old56=>$new56" >> $logfile
       fi
    fi
 
@@ -487,7 +491,7 @@ if [[ $(basename $0) = "vmapper_new.sh" ]] ;then
    oldWH=$([ -f /system/bin/ATVdetailsSender.sh ] && head -2 /system/bin/ATVdetailsSender.sh | grep '# version' | awk '{ print $NF }' || echo 0)
    if [ $VerATVwebhook != $oldWH ] ;then
       until /system/bin/curl -s -k -L --fail --show-error -o /system/bin/ATVdetailsSender.sh $branch/ATVdetailsSender.sh || { echo "`date +%Y-%m-%d_%T` Download ATVdetailsSender.sh failed, exit" >> $logfile ; exit 1; } ;do
-     sleep 2
+	 sleep 2
       done
       chmod +x /system/bin/ATVdetailsSender.sh
       newWH=$(head -2 /system/bin/ATVdetailsSender.sh | grep '# version' | awk '{ print $NF }')
@@ -530,11 +534,11 @@ if [ -d /data/data/de.vahrmap.vmapper/ ] ;then
       reboot=1
    else
       if [[ $policy != 2 ]] ;then
-     echo "`date +%Y-%m-%d_%T` incorrect policy for vmapper, changing it and reboot device" >> $logfile
-     sqlite3 /data/adb/magisk.db "DELETE FROM policies where package_name = 'de.vahrmap.vmapper'"
-     sqlite3 /data/adb/magisk.db "DELETE FROM policies where uid = '$uid'"
-     sqlite3 /data/adb/magisk.db "INSERT INTO policies (uid,package_name,policy,until,logging,notification) VALUES('$uid','de.vahrmap.vmapper',2,0,1,1)"
-     reboot=1
+	 echo "`date +%Y-%m-%d_%T` incorrect policy for vmapper, changing it and reboot device" >> $logfile
+	 sqlite3 /data/adb/magisk.db "DELETE FROM policies where package_name = 'de.vahrmap.vmapper'"
+	 sqlite3 /data/adb/magisk.db "DELETE FROM policies where uid = '$uid'"
+	 sqlite3 /data/adb/magisk.db "INSERT INTO policies (uid,package_name,policy,until,logging,notification) VALUES('$uid','de.vahrmap.vmapper',2,0,1,1)"
+	 reboot=1
       fi
    fi
 fi
@@ -568,22 +572,22 @@ fi
 if [ -f "$rgcconf" ] ;then
    if [ -f "$vmconf" ] && [ ! -z $(grep -w 'websocketurl' $vmconf | sed -e 's/    <string name="websocketurl">\(.*\)<\/string>/\1/') ] ;then
       if [[ $(grep -w 'boot_startup' $rgcconf | awk -F "\"" '{print tolower($4)}') == "true" ]] ;then
-     sed -i 's,\"autostart_services\" value=\"true\",\"autostart_services\" value=\"false\",g' $rgcconf
-     sed -i 's,\"boot_startup\" value=\"true\",\"boot_startup\" value=\"false\",g' $rgcconf
-     chmod 660 $rgcconf
-     chown $ruser:$ruser $rgcconf
-     am force-stop de.grennith.rgc.remotegpscontroller
-     echo "`date +%Y-%m-%d_%T` VMconf check: rgc activated and vmapper installed, disabled rgc" >> $logfile
+	 sed -i 's,\"autostart_services\" value=\"true\",\"autostart_services\" value=\"false\",g' $rgcconf
+	 sed -i 's,\"boot_startup\" value=\"true\",\"boot_startup\" value=\"false\",g' $rgcconf
+	 chmod 660 $rgcconf
+	 chown $ruser:$ruser $rgcconf
+	 am force-stop de.grennith.rgc.remotegpscontroller
+	 echo "`date +%Y-%m-%d_%T` VMconf check: rgc activated and vmapper installed, disabled rgc" >> $logfile
       fi
    else
       if [[ $(grep -w 'boot_startup' $rgcconf | awk -F "\"" '{print tolower($4)}') == "false" ]] ;then
-     sed -i 's,\"autostart_services\" value=\"false\",\"autostart_services\" value=\"true\",g' $rgcconf
-     sed -i 's,\"boot_startup\" value=\"false\",\"boot_startup\" value=\"true\",g' $rgcconf
-     chmod 660 $rgcconf
-     chown $ruser:$ruser $rgcconf
-     monkey -p de.grennith.rgc.remotegpscontroller 1
-     reboot=1
-     echo "`date +%Y-%m-%d_%T` VMconf check: rgc deactivated and either vmapper not installed or websocket was empty, started rgc" >> $logfile
+	 sed -i 's,\"autostart_services\" value=\"false\",\"autostart_services\" value=\"true\",g' $rgcconf
+	 sed -i 's,\"boot_startup\" value=\"false\",\"boot_startup\" value=\"true\",g' $rgcconf
+	 chmod 660 $rgcconf
+	 chown $ruser:$ruser $rgcconf
+	 monkey -p de.grennith.rgc.remotegpscontroller 1
+	 reboot=1
+	 echo "`date +%Y-%m-%d_%T` VMconf check: rgc deactivated and either vmapper not installed or websocket was empty, started rgc" >> $logfile
       fi
    fi
 fi
