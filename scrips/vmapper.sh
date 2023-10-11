@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 14.7.4
+# version 14.7.5
 
 #Version checks
 Ver49vmapper="1.6.0"
