@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 11.8.3
+# version 2.1.0
 
 source /data/local/ATVdetailsWebhook.config
 logfile="/sdcard/vm.log"
@@ -25,8 +25,7 @@ while true
     arch=$(uname -m)
     productmodel=$(getprop ro.product.model)
     vm_script=$(head -2 /system/bin/vmapper.sh | grep '# version' | awk '{ print $NF }')
-    vmapper55=$([ -f /system/etc/init.d/55vmapper ] && head -2 /system/etc/init.d/55vmapper | grep '# version' | awk '{ print $NF }' || echo 'na')
-    vmapper42=$([ -f /system/etc/init.d/42vmapper ] && head -2 /system/etc/init.d/42vmapper | grep '# version' | awk '{ print $NF }' || echo 'na')
+    vmapper42=$([ -f /system/etc/init.d/49vmapper ] && head -2 /system/etc/init.d/49vmapper | grep '# version' | awk '{ print $NF }' || echo 'na')
     vmwatchdog56=$([ -f /system/etc/init.d/56vmwatchdog ] && head -2 /system/etc/init.d/56vmwatchdog | grep '# version' | awk '{ print $NF }' || echo 'na')
     whversion=$([ -f /system/bin/ATVdetailsSender.sh ] && head -2 /system/bin/ATVdetailsSender.sh | grep '# version' | awk '{ print $NF }' || echo 'na')
     pogo=$(dumpsys package com.nianticlabs.pokemongo | grep versionName | head -n1 | sed 's/ *versionName=//')
@@ -53,12 +52,10 @@ while true
     daemon=$(grep -w 'daemon' $vmconf | awk -F "\"" '{print tolower($4)}')
     authpassword=$(grep -w 'authpassword' $vmconf | sed -e 's/    <string name="authpassword">\(.*\)<\/string>/\1/')
     authuser=$(grep -w 'authuser' $vmconf | sed -e 's/    <string name="authuser">\(.*\)<\/string>/\1/')
-#    injector=$(grep -w 'injector' $vmstore | sed -e 's/    <string name="injector">\(.*\)<\/string>/\1/')
     authid=$(grep -w 'authid' $vmconf | sed -e 's/    <string name="authid">\(.*\)<\/string>/\1/')
     postdest=$(grep -w 'postdest' $vmconf | sed -e 's/    <string name="postdest">\(.*\)<\/string>/\1/')
     fridastarted=$(grep -w 'fridastarted' $vmstore | awk -F "\"" '{print tolower($4)}')
     patchedpid=$(grep -w 'patchedpid' $vmstore | awk -F "\"" '{print tolower($4)}')
-#    fridaver=$(grep -w 'fridaver' $vmstore | awk -F "\"" '{print tolower($4)}')
     openlucky=$(grep -w 'openlucky' $vmconf | awk -F "\"" '{print tolower($4)}')
     rebootminutes=$(grep -w 'rebootminutes' $vmconf | awk -F "\"" '{print tolower($4)}')
     deviceid=$(grep -w 'deviceid' $vmstore | sed -e 's/    <string name="deviceid">\(.*\)<\/string>/\1/')
@@ -122,8 +119,7 @@ while true
     "arch": "${arch}",
     "productmodel": "${productmodel}",
     "vm_script": "${vm_script}",
-    "vmapper55": "${vmapper55}",
-    "vmapper42": "${vmapper42}",
+    "vmapper49": "${vmapper49}",
     "vmwatchdog56": "${vmwatchdog56}",
     "whversion": "${whversion}",
     "pogo": "${pogo}",
