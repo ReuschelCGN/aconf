@@ -25,7 +25,7 @@ while true
     arch=$(uname -m)
     productmodel=$(getprop ro.product.model)
     vm_script=$(head -2 /system/bin/vmapper.sh | grep '# version' | awk '{ print $NF }')
-    vmapper42=$([ -f /system/etc/init.d/49vmapper ] && head -2 /system/etc/init.d/49vmapper | grep '# version' | awk '{ print $NF }' || echo 'na')
+    vmapper49=$([ -f /system/etc/init.d/49vmapper ] && head -2 /system/etc/init.d/49vmapper | grep '# version' | awk '{ print $NF }' || echo 'na')
     vmwatchdog56=$([ -f /system/etc/init.d/56vmwatchdog ] && head -2 /system/etc/init.d/56vmwatchdog | grep '# version' | awk '{ print $NF }' || echo 'na')
     whversion=$([ -f /system/bin/ATVdetailsSender.sh ] && head -2 /system/bin/ATVdetailsSender.sh | grep '# version' | awk '{ print $NF }' || echo 'na')
     pogo=$(dumpsys package com.nianticlabs.pokemongo | grep versionName | head -n1 | sed 's/ *versionName=//')
