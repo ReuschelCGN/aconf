@@ -1,8 +1,7 @@
 # Webhook receiver for getting data from ATV devices
 # replacement for ATVdetails
 #
-__author__ = "GhostTalker and Apple314"
-__copyright__ = "Copyright 2022, The GhostTalker project"
+__author__ = "Tombstone"
 __version__ = "0.2.4"
 __status__ = "DEV"
 
@@ -17,6 +16,7 @@ import pymysql
 from mysql.connector import Error
 from mysql.connector import pooling
 from flask import Flask, request
+from flask_caching import Cache
 
 ## read config
 _config = configparser.ConfigParser()
@@ -29,6 +29,13 @@ _mysqlport = _config.get("mysql", "mysqlport", fallback='3306')
 _mysqldb = _config.get("mysql", "mysqldb")
 _mysqluser = _config.get("mysql", "mysqluser")
 _mysqlpass = _config.get("mysql", "mysqlpass")
+
+## set cache 
+config = {
+    "DEBUG": False,
+    "CACHE_TYPE": "SimpleCache",
+    "CACHE_DEFAULT_TIMEOUT": 300
+}
 
 ## do validation and checks before insert
 def validate_string(val):
@@ -79,69 +86,35 @@ finally:
 
 ## webhook receiver
 app = Flask(__name__)
+# tell Flask to use the above defined config
+app.config.from_mapping(config)
+cache = Cache(app)
 
 @app.route('/webhook', methods=['POST'])
 def webhook():
-
-    if request.method == 'POST' and request.json["WHType"] == 'ATVMonitor':
-        print("Data received from ATV Monitor Webhook is: ", request.json)
-
-        # parse json data to SQL insert
-        timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        deviceName = validate_string(request.json["deviceName"])
-        issue = validate_string(request.json["issue"])
-        action = validate_string(request.json["action"])
-        script = validate_string(request.json["script"])
-
-        insert_stmt_monitor = (
-            "INSERT INTO ATVMonitor (timestamp, deviceName, issue, action, script)"
-            "VALUES ( %s, %s, %s, %s, %s )"
-        )
-
-        data_monitor = ( str(timestamp), str(deviceName), str(issue), str(action), str(script) )
-
-        try:
-            connection_object = connection_pool.get_connection()
-
-            # Get connection object from a pool
-            if connection_object.is_connected():
-                print("MySQL pool connection is open.")
-                # Executing the SQL command
-                cursor = connection_object.cursor()
-                cursor.execute(insert_stmt_monitor, data_monitor)
-                connection_object.commit()
-                print("Monitor Data inserted")
-
-        except Exception as e:
-            # Rolling back in case of error
-            connection_object.rollback()
-            print(e)
-            print("Monitor Data NOT inserted. rollbacked.")
-
-        finally:
-            # closing database connection.
-            if connection_object.is_connected():
-                cursor.close()
-                connection_object.close()
-                print("MySQL pool connection is closed.")
-
-        return "Monitor Webhook received!"
-
 
     if request.method == 'POST' and request.json["WHType"] == 'ATVDetails':
         print("Data received from ATV Details Webhook is: ", request.json)
 
         # parse json data to SQL insert
         timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        deviceName = validate_string(request.json["deviceName"])
+        RPL = validate_string(request.json["RPL"])
+        deviceName = validate_string(request.json["origin"])
         arch = validate_string(request.json["arch"])
         productmodel = validate_string(request.json["productmodel"])
-        atlasSh = validate_string(request.json["atlasSh"])
-        atlas55 = validate_string(request.json["atlas55"])
-        atlas42 = validate_string(request.json["atlas42"])
-        monitor = validate_string(request.json["monitor"])
+        android_version = validate_string(request.json["android_version"])
+        vmapperSh = validate_string(request.json["vm_script"])
+        vmapper49 = validate_string(request.json["vmapper49"])
+        vmwatchdog56 = validate_string(request.json["vmwatchdog56"])
+        whversion = validate_string(request.json["whversion"])
         pogo = validate_string(request.json["pogo"])
-        atlas = validate_string(request.json["atlas"])
+        vmapper = validate_string(request.json["vmapper"])
+        pogoupdate = validate_string(request.json["pogo_update"])
+        vmupdate = validate_string(request.json["vm_update"])
+        playstoreenabled = validate_string(request.json["playstore_enabled"])
+        playstore = validate_string(request.json["playstore"])
+        proxyinfo = validate_string(request.json["proxyinfo"])
+        whenabled = validate_string(request.json["wh_enabled"])
         temperature = validate_string(request.json["temperature"])
         magisk = validate_string(request.json["magisk"])
         magisk_modules = validate_string(request.json["magisk_modules"])
@@ -150,45 +123,59 @@ def webhook():
         ip = validate_string(request.json["ip"])
         ext_ip = validate_string(request.json["ext_ip"])
         hostname = validate_string(request.json["hostname"])
-        playstore = validate_string(request.json["playstore"])
-        proxyinfo = validate_string(request.json["proxyinfo"])
+        bootdelay = validate_string(request.json["bootdelay"])
         diskSysPct = validate_string(request.json["diskSysPct"])
         diskDataPct = validate_string(request.json["diskDataPct"])
-        RPL = validate_string(request.json["RPL"])
         memTot = validate_string(request.json["memTot"])
         memFree = validate_string(request.json["memFree"])
         memAv = validate_string(request.json["memAv"])
         memPogo = validate_string(request.json["memPogo"])
-        memAtlas = validate_string(request.json["memAtlas"])
+        memVM = validate_string(request.json["memVM"])
         cpuSys = validate_string(request.json["cpuSys"])
         cpuUser = validate_string(request.json["cpuUser"])
         cpuL5 = validate_string(request.json["cpuL5"])
         cpuL10 = validate_string(request.json["cpuL10"])
-        cpuL15 = validate_string(request.json["cpuL15"])
+        cpuLavg = validate_string(request.json["cpuLavg"])
         cpuPogoPct = validate_string(request.json["cpuPogoPct"])
-        cpuApct = validate_string(request.json["cpuApct"]) 
+        cpuVmPct = validate_string(request.json["cpuVmPct"]) 
         numPogo = validate_string(request.json["numPogo"])
-        reboot = validate_string(request.json["reboot"])
-        whversion = validate_string(request.json["whversion"])
-        authBearer = validate_string(request.json["authBearer"])
-        token = validate_string(request.json["token"])
-        email = validate_string(request.json["email"])
-        rdmUrl = validate_string(request.json["rdmUrl"])
-        onBoot = validate_string(request.json["onBoot"])
-        a_pogoStarted = validate_string(request.json["a_pogoStarted"])
-        a_injection = validate_string(request.json["a_injection"])
-        a_ptcLogin = validate_string(request.json["a_ptcLogin"])
-        a_atlasCrash = validate_string(request.json["a_atlasCrash"])
-        a_rdmError = validate_string(request.json["a_rdmError"])
-        m_noInternet = validate_string(request.json["m_noInternet"])
-        m_noConfig = validate_string(request.json["m_noConfig"])
-        m_noLicense = validate_string(request.json["m_noLicense"])
-        m_atlasDied = validate_string(request.json["m_atlasDied"])
-        m_pogoDied = validate_string(request.json["m_pogoDied"])
-        m_deviceOffline = validate_string(request.json["m_deviceOffline"])
-        m_noRDM = validate_string(request.json["m_noRDM"])
-        m_noFocus = validate_string(request.json["m_noFocus"])
-        m_unknown = validate_string(request.json["m_unknown"])
+        vmc_reboot = validate_string(request.json["vmc_reboot"])
+        gzip = validate_string(request.json["gzip"])
+        betamode = validate_string(request.json["betamode"])
+        selinux = validate_string(request.json["selinux"])
+        daemon = validate_string(request.json["daemon"])
+        authpassword = validate_string(request.json["authpassword"])
+        authuser = validate_string(request.json["authuser"])
+        authid = validate_string(request.json["authid"])
+        postdest = validate_string(request.json["postdest"])
+        fridastarted = validate_string(request.json["fridastarted"])
+        patchedpid = validate_string(request.json["patchedpid"])
+        openlucky = validate_string(request.json["openlucky"])
+        rebootminutes = validate_string(request.json["rebootminutes"])
+        deviceid = validate_string(request.json["deviceid"])
+        websocketurl = validate_string(request.json["websocketurl"])
+        catchPokemon = validate_string(request.json["catchPokemon"])
+        launcherver = validate_string(request.json["launcherver"])
+        rawpostdest = validate_string(request.json["rawpostdest"])
+        lat = validate_string(request.json["lat"])
+        lon = validate_string(request.json["lon"])
+        catchRare = validate_string(request.json["catchRare"])
+        overlay = validate_string(request.json["overlay"])
+        vm_patcher_restart = validate_string(request.json["vm_patcher_restart"])
+        vm_pogo_restart = validate_string(request.json["vm_pogo_restart"])
+        vm_injection = validate_string(request.json["vm_injection"])
+        vm_injectTimeout = validate_string(request.json["vm_injectTimeout"])
+        vm_crash_dialog = validate_string(request.json["vm_crash_dialog"])
+        vm_consent = validate_string(request.json["vm_consent"])
+        vm_ws_stop_pogo = validate_string(request.json["vm_ws_stop_pogo"])
+        vm_ws_start_pogo = validate_string(request.json["vm_ws_start_pogo"])
+        vm_authStart = validate_string(request.json["vm_authStart"])
+        vm_authSuccess = validate_string(request.json["vm_authSuccess"])
+        vm_authFailed = validate_string(request.json["vm_authFailed"])
+        vm_Gtoken = validate_string(request.json["vm_Gtoken"])
+        vm_Ptoken = validate_string(request.json["vm_Ptoken"])
+        vm_PtokenMaster = validate_string(request.json["vm_PtokenMaster"])
+        vm_died = validate_string(request.json["vm_died"])
 
         insert_stmt1 = "\
             INSERT INTO ATVsummary \
@@ -196,112 +183,156 @@ def webhook():
                 deviceName, \
                 arch, \
                 productmodel, \
-                atlasSh, \
-                55atlas, \
-                42atlas, \
-                monitor, \
+                android_version, \
+                vmapperSh, \
+                vmapper49, \
+                vmwatchdog56, \
+                whversion, \
                 pogo, \
-                atlas, \
+                vmapper, \
+                pogoupdate, \
+                vmupdate, \
+                playstoreenabled, \
+                playstore, \
+                proxyinfo, \
+                whenabled, \
                 temperature, \
                 magisk, \
                 magisk_modules, \
-                MACw, \
-                MACe, \
+                macw, \
+                mace, \
                 ip, \
                 ext_ip, \
                 hostname, \
-                playstore, \
-                proxyinfo, \
                 diskSysPct, \
                 diskDataPct, \
-                whversion, \
+                bootdelay, \
+                gzip, \
+                betamode, \
+                selinux, \
+                daemon, \
+                authpassword, \
+                authuser, \
+                authid, \
+                postdest, \
+                fridastarted, \
+                patchedpid, \
+                openlucky, \
+                rebootminutes, \
+                deviceid, \
+                websocketurl, \
+                catchPokemon, \
+                catchRare, \
+                launcherver, \
+                rawpostdest, \
+                lat, \
+                lon, \
+                overlay, \
                 numPogo, \
-                reboot, \
-                authBearer, \
-                token, \
-                email, \
-                rdmUrl, \
-                onBoot) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) \
+                vmc_reboot) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) \
             ON DUPLICATE KEY UPDATE \
                 timestamp = VALUES(timestamp), \
                 deviceName = VALUES(deviceName), \
                 arch = VALUES(arch), \
                 productmodel = VALUES(productmodel), \
-                atlasSh = VALUES(atlasSh), \
-                55atlas = VALUES(55atlas), \
-                42atlas = VALUES(42atlas), \
-                monitor = VALUES(monitor), \
+                android_version = VALUES(android_version), \
+                vmapperSh = VALUES(vmapperSh), \
+                vmapper49 = VALUES(vmapper49), \
+                vmwatchdog56 = VALUES(vmwatchdog56), \
+                whversion = VALUES(whversion), \
                 pogo = VALUES(pogo), \
-                atlas = VALUES(atlas), \
+                vmapper = VALUES(vmapper), \
+                pogoupdate = VALUES(pogoupdate), \
+                vmupdate = VALUES(vmupdate), \
+                playstoreenabled = VALUES(playstoreenabled), \
+                playstore = VALUES(playstore), \
+                proxyinfo = VALUES(proxyinfo), \
+                whenabled = VALUES(whenabled), \
                 temperature = VALUES(temperature), \
                 magisk = VALUES(magisk), \
                 magisk_modules = VALUES(magisk_modules), \
-                MACw = VALUES(MACw), \
-                MACe = VALUES(MACe), \
+                macw = VALUES(macw), \
+                mace = VALUES(mace), \
                 ip = VALUES(ip), \
                 ext_ip = VALUES(ext_ip), \
                 hostname = VALUES(hostname), \
-                playstore = VALUES(playstore), \
-                proxyinfo = VALUES(proxyinfo), \
                 diskSysPct = VALUES(diskSysPct), \
                 diskDataPct = VALUES(diskDataPct), \
-                whversion = VALUES(whversion), \
+                bootdelay = VALUES(bootdelay), \
+                gzip = VALUES(gzip), \
+                betamode = VALUES(betamode), \
+                selinux = VALUES(selinux), \
+                daemon = VALUES(daemon), \
+                authpassword = VALUES(authpassword), \
+                authuser = VALUES(authuser), \
+                authid = VALUES(authid), \
+                postdest = VALUES(postdest), \
+                fridastarted = VALUES(fridastarted), \
+                patchedpid = VALUES(patchedpid), \
+                openlucky = VALUES(openlucky), \
+                rebootminutes = VALUES(rebootminutes), \
+                deviceid = VALUES(deviceid), \
+                websocketurl = VALUES(websocketurl), \
+                catchPokemon = VALUES(catchPokemon), \
+                catchRare = VALUES(catchRare), \
+                launcherver = VALUES(launcherver), \
+                rawpostdest = VALUES(rawpostdest), \
+                lat = VALUES(lat), \
+                lon = VALUES(lon), \
+                overlay = VALUES(overlay), \
                 numPogo = VALUES(numPogo), \
-                reboot = VALUES(reboot), \
-                authBearer = VALUES(authBearer), \
-                token = VALUES(token), \
-                email = VALUES(email), \
-                rdmUrl = VALUES(rdmUrl), \
-                onBoot = VALUES(onBoot)"
+                vmc_reboot = VALUES(vmc_reboot)"
 
-        data1 = (str(timestamp), str(deviceName), str(arch), str(productmodel), str(atlasSh), str(atlas55), str(atlas42), str(monitor), str(pogo), str(atlas), str(temperature), str(magisk), str(magisk_modules), str(macw), str(mace), str(ip), str(ext_ip), str(hostname), str(playstore), str(proxyinfo), str(diskSysPct), str(diskDataPct), str(whversion), str(numPogo), str(reboot), str(authBearer), str(token), str(email), str(rdmUrl), str(onBoot) )
+        data1 = (str(timestamp), str(deviceName), str(arch), str(productmodel), str(android_version), str(vmapperSh), str(vmapper49), str(vmwatchdog56), str(whversion), str(pogo), str(vmapper), str(pogoupdate), str(vmupdate), str(playstoreenabled), str(playstore), str(proxyinfo), str(whenabled), str(temperature), str(magisk), str(magisk_modules), str(macw), str(mace), str(ip), str(ext_ip), str(hostname), str(diskSysPct), str(diskDataPct), str(bootdelay), str(gzip), str(betamode), str(selinux), str(daemon), str(authpassword), str(authuser), str(authid), str(postdest), str(fridastarted), str(patchedpid), str(openlucky), str(rebootminutes), str(deviceid), str(websocketurl), str(catchPokemon), str(catchRare), str(launcherver), str(rawpostdest), str(lat), str(lon), str(overlay), str(numPogo), str(vmc_reboot) )
 
         insert_stmt2 = (
-            "INSERT INTO ATVstats (timestamp, RPL, deviceName, temperature, memTot, memFree, memAv, memPogo, memAtlas, cpuSys, cpuUser, cpuL5, cpuL10, cpuL15, cpuPogoPct, cpuApct, diskSysPct, diskDataPct)"
+            "INSERT INTO ATVstats (timestamp, RPL, deviceName, temperature, memTot, memFree, memAv, memPogo, memVM, cpuSys, cpuUser, cpuL5, cpuL10, cpuLavg, cpuPogoPct, cpuVmPct, diskSysPct, diskDataPct)"
             "VALUES ( %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s )"
         )
 
-        data2 = (str(timestamp), str(RPL), str(deviceName), str(temperature), str(memTot), str(memFree), str(memAv), str(memPogo), str(memAtlas), str(cpuSys), str(cpuUser), str(cpuL5), str(cpuL10), str(cpuL15), str(cpuPogoPct), str(cpuApct), str(diskSysPct), str(diskDataPct) )
+        data2 = (str(timestamp), str(RPL), str(deviceName), str(temperature), str(memTot), str(memFree), str(memAv), str(memPogo), str(memVM), str(cpuSys), str(cpuUser), str(cpuL5), str(cpuL10), str(cpuLavg), str(cpuPogoPct), str(cpuVmPct), str(diskSysPct), str(diskDataPct) )
 
         insert_stmt3 = "\
             INSERT INTO ATVlogs \
                 (timestamp, \
                 deviceName, \
-                reboot, \
-                a_pogoStarted, \
-                a_injection, \
-                a_ptcLogin, \
-                a_atlasCrash, \
-                a_rdmError, \
-                m_noInternet, \
-                m_noConfig, \
-                m_noLicense, \
-                m_atlasDied, \
-                m_pogoDied, \
-                m_deviceOffline, \
-                m_noRDM, \
-                m_noFocus, \
-                m_unknown) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) \
+                vmc_reboot, \
+                vm_patcher_restart, \
+                vm_pogo_restart, \
+                vm_injection, \
+                vm_injectTimeout, \
+                vm_crash_dialog, \
+                vm_consent, \
+                vm_ws_stop_pogo, \
+                vm_ws_start_pogo, \
+                vm_authStart, \
+                vm_authSuccess, \
+                vm_authFailed, \
+                vm_Gtoken, \
+                vm_Ptoken, \
+                vm_PtokenMaster, \
+                vm_died) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) \
             ON DUPLICATE KEY UPDATE \
                 timestamp = VALUES(timestamp), \
                 deviceName = VALUES(deviceName), \
-                reboot = VALUES(reboot), \
-                a_pogoStarted = VALUES(a_pogoStarted), \
-                a_injection = VALUES(a_injection), \
-                a_ptcLogin = VALUES(a_ptcLogin), \
-                a_atlasCrash = VALUES(a_atlasCrash), \
-                a_rdmError = VALUES(a_rdmError), \
-                m_noInternet = VALUES(m_noInternet), \
-                m_noConfig = VALUES(m_noConfig), \
-                m_noLicense = VALUES(m_noLicense), \
-                m_atlasDied = VALUES(m_atlasDied), \
-                m_pogoDied = VALUES(m_pogoDied), \
-                m_deviceOffline = VALUES(m_deviceOffline), \
-                m_noRDM = VALUES(m_noRDM), \
-                m_noFocus = VALUES(m_noFocus), \
-                m_unknown = VALUES(m_unknown)"
+                vmc_reboot = VALUES(vmc_reboot), \
+                vm_patcher_restart = VALUES(vm_patcher_restart), \
+                vm_pogo_restart = VALUES(vm_pogo_restart), \
+                vm_injection = VALUES(vm_injection), \
+                vm_injectTimeout = VALUES(vm_injectTimeout), \
+                vm_crash_dialog = VALUES(vm_crash_dialog), \
+                vm_consent = VALUES(vm_consent), \
+                vm_ws_stop_pogo = VALUES(vm_ws_stop_pogo), \
+                vm_ws_start_pogo = VALUES(vm_ws_start_pogo), \
+                vm_authStart = VALUES(vm_authStart), \
+                vm_authSuccess = VALUES(vm_authSuccess), \
+                vm_authFailed = VALUES(vm_authFailed), \
+                vm_Gtoken = VALUES(vm_Gtoken), \
+                vm_Ptoken = VALUES(vm_Ptoken), \
+                vm_PtokenMaster = VALUES(vm_PtokenMaster), \
+                vm_died = VALUES(vm_died)"
 
-        data3 = (str(timestamp), str(deviceName), str(reboot), str(a_pogoStarted), str(a_injection), str(a_ptcLogin), str(a_atlasCrash), str(a_rdmError), str(m_noInternet), str(m_noConfig), str(m_noLicense), str(m_atlasDied), str(m_pogoDied), str(m_deviceOffline), str(m_noRDM), str(m_noFocus), str(m_unknown) )
+        data3 = (str(timestamp), str(deviceName), str(vmc_reboot), str(vm_patcher_restart), str(vm_pogo_restart), str(vm_injection), str(vm_injectTimeout), str(vm_crash_dialog), str(vm_consent), str(vm_ws_stop_pogo), str(vm_ws_start_pogo), str(vm_authStart), str(vm_authSuccess), str(vm_authFailed), str(vm_Gtoken), str(vm_Ptoken), str(vm_PtokenMaster), str(vm_died) )
 
         try:
             connection_object = connection_pool.get_connection()
