@@ -24,6 +24,7 @@ while true
     origin=$(grep -w 'origin' $vmconf | sed -e 's/    <string name="origin">\(.*\)<\/string>/\1/')
     arch=$(uname -m)
     productmodel=$(getprop ro.product.model)
+    android_version=$(getprop ro.build.version.release)
     vm_script=$(head -2 /system/bin/vmapper.sh | grep '# version' | awk '{ print $NF }')
     vmapper49=$([ -f /system/etc/init.d/49vmapper ] && head -2 /system/etc/init.d/49vmapper | grep '# version' | awk '{ print $NF }' || echo 'na')
     vmwatchdog56=$([ -f /system/etc/init.d/56vmwatchdog ] && head -2 /system/etc/init.d/56vmwatchdog | grep '# version' | awk '{ print $NF }' || echo 'na')
@@ -38,9 +39,9 @@ while true
     wh_enabled=$([ -f /sdcard/sendwebhook ] && echo 'enabled' || echo 'disabled')
     temperature=$(cat /sys/class/thermal/thermal_zone0/temp | cut -c -2)
     magisk=$(magisk -c | sed 's/:.*//')
-    magisk_modules=$(ls -1 /sbin/.magisk/img | xargs | sed -e 's/ /, /g' 2>/dev/null)
-    macw=$([ -d /sys/class/net/wlan0 ] && ifconfig wlan0 |grep 'HWaddr' |awk '{ print ($NF) }' || echo 'na')
-    mace=$(ifconfig eth0 |grep 'HWaddr' |awk '{ print ($NF) }')
+    magisk_modules=$(ls -1 /data/adb/modules/ | xargs | sed -e 's/ /, /g' 2>/dev/null)
+    macw=$([ -d /sys/class/net/wlan0 ] && ifconfig wlan0 |grep 'HWaddr' |cut -c 39-55 || echo 'na')
+    mace=$(ifconfig eth0 |grep 'HWaddr' |cut -c 39-55)
     ip=$(ifconfig wlan0 |grep 'inet addr' |cut -d ':' -f2 |cut -d ' ' -f1 && ifconfig eth0 |grep 'inet addr' |cut -d ':' -f2 |cut -d ' ' -f1)
     ext_ip=$(curl -k -s https://ifconfig.me/)
     hostname=$(getprop net.hostname)
@@ -77,16 +78,16 @@ while true
       processmem=$(dumpsys meminfo $process | grep -m 1 "TOTAL" | awk '{print $2}')
       memVM=$(( memVM + processmem ))
     done
-    cpuSys=$(top -n 1 | grep -m 1 "System" | awk '{print substr($2, 1, length($2)-2)}')
-    cpuUser=$(top -n 1 | grep -m 1 "User" | awk '{print substr($2, 1, length($2)-2)}')
+    cpuSys=$(top -n 1 | grep -m 1 "sys" | awk '{print (cut $4 -f1)}')
+    cpuUser=$(top -n 1 | grep -m 1 "user" | awk '{print (cut $2 -f1)}')
     cpuL5=$(dumpsys cpuinfo | grep "Load" | awk '{ print $2 }')
     cpuL10=$(dumpsys cpuinfo | grep "Load" | awk '{ print $4 }')
     cpuLavg=$(dumpsys cpuinfo | grep "Load" | awk '{ print $6 }')
-    cpuPogoPct=$(dumpsys cpuinfo | grep 'com.nianticlabs.pokemongo' | awk '{print substr($1, 1, length($1)-1)}')
-    cpuVmPct=$(dumpsys cpuinfo | grep de.vahrmap.vmapper | awk '{print substr($1, 1, length($1)-1)}' | sed 's/+//g' | awk '{s+=$1} END {print s}')
-    diskSysPct=$(df -h | grep /sbin/.magisk/mirror/system | awk '{print substr($5, 1, length($5)-1)}')
-    diskDataPct=$(df -h | grep /sbin/.magisk/mirror/data | awk '{print substr($5, 1, length($5)-1)}')
-    numPogo=$(ls -l /sbin/.magisk/mirror/data/app/ | grep com.nianticlabs.pokemongo | wc -l)
+    cpuPogoPct=$(dumpsys cpuinfo | grep 'com.nianticlabs.pokemongo' | awk '{print (cut $3 -f1)}')
+    cpuVmPct=$(dumpsys cpuinfo | grep de.vahrmap.vmapper  | awk '{print (cut $1 -f1)}')
+    diskSysPct=$(df -h | grep /dev/root | awk '{print (cut $5 -f1)}')
+    diskDataPct=$(df -h | grep /dev/block/data | awk '{print (cut $5 -f1)}')
+    numPogo=$(ls -l /data/app/ | grep com.nianticlabs.pokemongo | wc -l)
 # vm.log
     vmc_reboot=$(grep 'Device rebooted' $vmlog | wc -l)
 # vmapper.log
@@ -118,6 +119,7 @@ while true
     "origin": "${origin}",
     "arch": "${arch}",
     "productmodel": "${productmodel}",
+    "android_version": "${android_version}",
     "vm_script": "${vm_script}",
     "vmapper49": "${vmapper49}",
     "vmwatchdog56": "${vmwatchdog56}",
