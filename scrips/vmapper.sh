@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 14.7.5
+# version 14.7.6
 
 #Version checks
 Ver49vmapper="1.6.0"
@@ -638,6 +638,9 @@ if [ -f /data/local/ATVdetailsWebhook.config ] && [ -f /system/bin/ATVdetailsSen
       echo "`date +%Y-%m-%d_%T` ATVdetails sender restarted" >> $logfile
    fi
 fi
+
+# hide both status and nav bar
+settings put global policy_control immersive.full=*
 
 for i in "$@" ;do
    case "$i" in
