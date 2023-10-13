@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 2.1.0
+# version 2.1.1
 
 source /data/local/ATVdetailsWebhook.config
 logfile="/sdcard/vm.log"
@@ -84,7 +84,7 @@ while true
     cpuL10=$(dumpsys cpuinfo | grep "Load" | awk '{ print $4 }')
     cpuLavg=$(dumpsys cpuinfo | grep "Load" | awk '{ print $6 }')
     cpuPogoPct=$(dumpsys cpuinfo | grep 'com.nianticlabs.pokemongo' | awk '{print (cut $3 -f1)}')
-    cpuVmPct=$(dumpsys cpuinfo | grep de.vahrmap.vmapper  | awk '{print (cut $1 -f1)}')
+    cpuVmPct=$(dumpsys cpuinfo | grep "de.vahrmap.vmapper: " | awk '{print (cut $1 -f1)}')
     diskSysPct=$(df -h | grep /dev/root | awk '{print (cut $5 -f1)}')
     diskDataPct=$(df -h | grep /dev/block/data | awk '{print (cut $5 -f1)}')
     numPogo=$(ls -l /data/app/ | grep com.nianticlabs.pokemongo | wc -l)
