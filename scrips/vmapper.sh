@@ -151,8 +151,8 @@ install_vmapper_wizard(){
 vmapper_wizard(){
    #check update vmapper and download from wizard
 
-   newver="$(/system/bin/curl -s -k -L -u $authuser:$authpassword -H "origin: $origin" "$server/mad_apk/vm/noarch" | awk '{print substr($1,2); }')"
-   installedver="$(dumpsys package de.vahrmap.vmapper|awk -F'=' '/versionName/{print $2}'|head -n1 | awk '{print substr($1,2); }')"
+   newver="$(/system/bin/curl -s -k -L -u $authuser:$authpassword -H "origin: $origin" "$server/mad_apk/vm/noarch" | awk '{print $1 }')"
+   installedver="$(dumpsys package de.vahrmap.vmapper | grep versionName | head -n1 | sed 's/ *versionName=//')"
 
    if [ "$newver" = "" ] ;then
       vm_install="skip"
