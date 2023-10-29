@@ -1,0 +1,160 @@
+#!/system/bin/sh
+# version 4.0.3
+
+logfile="/sdcard/aconf.log"
+initdir="/sdcard/initrom"
+useragent="Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:53.0) Gecko/20100101 Firefox/53.0"
+aconf_download="/data/local/aconf_download"
+aconf_versions="/data/local/aconf_versions"
+
+if [ -f $initdir/init_done ]; then
+  #Create logfile
+  if [ ! -e /sdcard/aconf.log ] ;then
+    touch /sdcard/aconf.log
+  fi
+
+  echo "" >> $logfile
+  echo "`date +%Y-%m-%d_%T` Device rebooted" >> $logfile
+
+  # stderr to logfile
+  exec 2>> $logfile
+
+
+  ########## Functions
+
+  wait_for_internet(){
+    until ping -c1 8.8.8.8 >/dev/null 2>/dev/null || ping -c1 1.1.1.1 >/dev/null 2>/dev/null; do
+      sleep 10
+    done
+    echo "`date +%Y-%m-%d_%T` 49atlas: internet connection available" >> $logfile
+  }
+
+  # logger
+  logger() {
+    if [[ ! -z $discord_webhook ]] ;then
+      echo "`date +%Y-%m-%d_%T` 49atlas: $1" >> $logfile
+      if [[ -z $origin ]] ;then
+        curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"49atlas\", \"content\": \" $1 \"}"  $discord_webhook &>/dev/null
+      else
+        curl -S -k -L --fail --show-error -F "payload_json={\"username\": \"49atlas\", \"content\": \" $origin: $1 \"}"  $discord_webhook &>/dev/null
+      fi
+    else
+      echo "`date +%Y-%m-%d_%T` 49atlas: $1" >> $logfile
+    fi
+  }
+
+  set_mac(){
+    echo 1 > /sys/class/unifykeys/lock
+    echo mac > /sys/class/unifykeys/name
+    echo "$1" >/sys/class/unifykeys/write
+    cat /sys/class/unifykeys/read
+    echo 0 > /sys/class/unifykeys/lock
+  }
+
+  checkmac(){
+    if ifconfig|grep -A5 wlan0|grep -q inet ;then
+      current_mac=$(ifconfig wlan0|awk '/HWaddr/{print $5}')
+    elif ifconfig|grep -A5 eth0|grep -q inet ;then
+      current_mac=$(ifconfig eth0|awk '/HWaddr/{print $5}')
+    fi
+
+    if [[ "$current_mac" == "00:15:18:01:81:31" ]] ;then
+      new_mac=$(xxd -l 6 -p /dev/urandom |sed 's/../&:/g;s/:$//')
+      ifconfig eth0 down
+      until ifconfig eth0 hw ether "$new_mac" 2>/dev/null; do
+        new_mac=$(xxd -l 6 -p /dev/urandom |sed 's/../&:/g;s/:$//')
+      done
+      ifconfig eth0 up
+      sleep 3
+      set_mac $new_mac
+      logger "changed mac from $current_mac to $new_mac"
+      wait_for_internet
+    fi
+  }
+
+  install_emagisk_module() {
+    if [[ ! -f /sdcard/Download/eMagisk.zip ]] ;then
+      until $download /sdcard/Download/eMagisk.zip $url/rom/eMagisk.zip || { logger "download eMagisk.zip failed, exit script" ; exit 1; } ;do
+        sleep 2
+      done
+    fi
+    if [ -f /sdcard/Download/eMagisk.zip -a ! -f /data/adb/modules/emagisk ]; then
+      logger 'install eMagisk module'
+      su -c 'magisk --install-module /sdcard/Download/eMagisk.zip'
+      sleep 15
+      touch $initdir/emagisk_done
+    else
+      logger 'eMagisk installation fails'
+    fi
+  }
+
+  ########## Execution
+
+  wait_for_internet
+
+  # verify download credential file and set download
+  if [[ ! -f $aconf_download ]] ;then
+    logger "/data/local/aconf_download not found, exit script" && exit 1
+  else
+    url=$(grep url $aconf_download | awk -F "=" '{ print $NF }')
+    authUser=$(grep authUser $aconf_download | awk -F "=" '{ print $NF }')
+    authPass=$(grep authPass $aconf_download | awk -F "=" '{ print $NF }')
+    discord_webhook=$(grep discord_webhook $aconf_download | awk -F "=" '{ print $NF }')
+    if [[ $authUser == "" ]] ;then
+      download="/system/bin/curl -s -k -L --fail --show-error -o"
+    else
+      download="/system/bin/curl -s -k -L --fail --show-error --user $authUser:$authPass -o"
+    fi
+  fi
+
+  if [[ -f /sdcard/new_install ]] ;then
+    mount -o remount,rw /
+  # check mac for A95x
+    logger "checking mac"
+    checkmac
+
+  # add atlas.sh
+    if [[ ! -f /system/bin/atlas.sh ]] ;then
+      until $download /system/bin/atlas.sh $url/scripts/atlas.sh || { logger "download atlas.sh failed, exit script" ; exit 1; } ;do
+        sleep 2
+      done
+    fi
+    chmod +x /system/bin/atlas.sh
+    logger "downloaded atlas.sh"
+
+  # download versions file
+    until $download $aconf_versions $url/versions || { logger "download versions file failed, exit script"; exit 1; } ;do
+      sleep 2
+    done
+    dos2unix $aconf_versions
+    logger "downloaded versions file"
+
+  # Install Atlas
+    if [[ ! -d /data/data/com.pokemod.atlas/ ]] ;then
+      logger "starting install of atlas"
+      su -c '/system/bin/atlas.sh -ia'
+    fi
+
+  # Install eMagisk
+    if [[ $(grep useeMagisk $aconf_versions | awk -F "=" '{ print $NF }') == "true" ]] && [ ! -f /data/adb/modules/emagisk ] ;then
+      logger "starting install of eMagisk"
+      install_emagisk_module
+    fi
+
+  # Enable PlayStore for validate play integrity accounts
+    logger "Enable PlayStore for validate play integrity"
+    pm enable com.android.vending
+
+  # Close new install and remove bootstrap, it served its purpose
+    if [[ -d /data/data/com.pokemod.atlas/ ]] ;then
+      mount -o remount,rw /
+      rm -f /sdcard/new_install
+      rm -f /system/etc/init.d/21atlasbootstrap
+      logger "config done, now acting as 55atlas"
+    fi
+    mount -o remount,ro /
+  fi
+
+  # check for updates / execute atlas.sh
+  /system/bin/atlas.sh -ua
+fi
