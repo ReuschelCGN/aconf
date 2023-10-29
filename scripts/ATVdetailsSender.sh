@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 1.7.9
+# version 4.0.2
 
 source /data/local/aconf_versions
 logfile="/sdcard/aconf.log"
@@ -27,39 +27,41 @@ while true
     deviceName=$(cat $atlas_conf | tr , '\n' | grep -w 'deviceName' | awk -F ":" '{ print $2 }' | tr -d \"})
     arch=$(uname -m)
     productmodel=$(getprop ro.product.model)
+    android_version=$(getprop ro.build.version.release)
     atlasSh=$(head -2 /system/bin/atlas.sh | grep '# version' | awk '{ print $NF }')
     atlas55=$([ -f /system/etc/init.d/55atlas ] && head -2 /system/etc/init.d/55atlas | grep '# version' | awk '{ print $NF }' || echo 'na')
-    atlas42=$([ -f /system/etc/init.d/42atlas ] && head -2 /system/etc/init.d/42atlas | grep '# version' | awk '{ print $NF }' || echo 'na')
+    atlas49=$([ -f /system/etc/init.d/49atlas ] && head -2 /system/etc/init.d/49atlas | grep '# version' | awk '{ print $NF }' || echo 'na')
     monitor=$([ -f /system/bin/atlas_monitor.sh ] && head -2 /system/bin/atlas_monitor.sh | grep '# version' | awk '{ print $NF }' || echo 'na')
     whversion=$([ -f /system/bin/ATVdetailsSender.sh ] && head -2 /system/bin/ATVdetailsSender.sh | grep '# version' | awk '{ print $NF }' || echo 'na')
     pogo=$(dumpsys package com.nianticlabs.pokemongo | grep versionName | head -n1 | sed 's/ *versionName=//')
     atlas=$(dumpsys package com.pokemod.atlas | grep versionName | head -n1 | sed 's/ *versionName=//')
+    playstore_enabled=$([ -n "$(ps | grep com.android.vending)" ] && echo 'enabled' || echo 'disabled')
+    playstore=$(dumpsys package com.android.vending | grep versionName | head -n 1 | cut -d "=" -f 2 | cut -d " " -f 1)
+    proxyinfo=$(proxy=$(settings list global | grep "http_proxy=" | awk -F= '{ print $NF }'); [ -z "$proxy" ] || [ "$proxy" = ":0" ] && echo "none" || echo "$proxy")
     temperature=$(cat /sys/class/thermal/thermal_zone0/temp | cut -c -2)
     magisk=$(magisk -c | sed 's/:.*//')
-    magisk_modules=$(ls -1 /sbin/.magisk/img | xargs | sed -e 's/ /, /g' 2>/dev/null)
-    macw=$([ -d /sys/class/net/wlan0 ] && ifconfig wlan0 |grep 'HWaddr' |awk '{ print ($NF) }' || echo 'na')
-    mace=$(ifconfig eth0 |grep 'HWaddr' |awk '{ print ($NF) }')
+    magisk_modules=$(ls -1 /data/adb/modules/ | xargs | sed -e 's/ /, /g' 2>/dev/null)
+    macw=$([ -d /sys/class/net/wlan0 ] && ifconfig wlan0 |grep 'HWaddr' |cut -c 39-55 || echo 'na')
+    mace=$(ifconfig eth0 |grep 'HWaddr' |cut -c 39-55)
     ip=$(ifconfig wlan0 |grep 'inet addr' |cut -d ':' -f2 |cut -d ' ' -f1 && ifconfig eth0 |grep 'inet addr' |cut -d ':' -f2 |cut -d ' ' -f1)
     ext_ip=$(curl -k -s https://ifconfig.me/)
     hostname=$(getprop net.hostname)
-    playstore=$(dumpsys package com.android.vending | grep versionName | head -n 1 | cut -d "=" -f 2 | cut -d " " -f 1)
-    proxyinfo=$(proxy=$(settings list global | grep "http_proxy=" | awk -F= '{ print $NF }'); [ -z "$proxy" ] || [ "$proxy" = ":0" ] && echo "none" || echo "$proxy")
 # atv performance
     memTot=$(cat /proc/meminfo | grep MemTotal | awk '{print $2}')
     memFree=$(cat /proc/meminfo | grep MemFree | awk '{print $2}')
     memAv=$(cat /proc/meminfo | grep MemAvailable | awk '{print $2}')
     memPogo=$(dumpsys meminfo 'com.nianticlabs.pokemongo' | grep -m 1 "TOTAL" | awk '{print $2}')
     memAtlas=$(dumpsys meminfo 'com.pokemod.atlas:mapping' | grep -m 1 "TOTAL" | awk '{print $2}')
-    cpuSys=$(top -n 1 | grep -m 1 "System" | awk '{print substr($2, 1, length($2)-2)}')
-    cpuUser=$(top -n 1 | grep -m 1 "User" | awk '{print substr($2, 1, length($2)-2)}')
+    cpuSys=$(top -n 1 | grep -m 1 "sys" | awk '{print (cut $4 -f1)}')
+    cpuUser=$(top -n 1 | grep -m 1 "user" | awk '{print (cut $2 -f1)}')
     cpuL5=$(dumpsys cpuinfo | grep "Load" | awk '{ print $2 }')
     cpuL10=$(dumpsys cpuinfo | grep "Load" | awk '{ print $4 }')
     cpuL15=$(dumpsys cpuinfo | grep "Load" | awk '{ print $6 }')
-    cpuPogoPct=$(dumpsys cpuinfo | grep 'com.nianticlabs.pokemongo' | awk '{print substr($1, 1, length($1)-1)}')
-    cpuApct=$(dumpsys cpuinfo | grep 'com.pokemod.atlas' | awk '{print substr($1, 1, length($1)-1)}')
-    diskSysPct=$(df -h | grep /sbin/.magisk/mirror/system | awk '{print substr($5, 1, length($5)-1)}')
-    diskDataPct=$(df -h | grep /sbin/.magisk/mirror/data | awk '{print substr($5, 1, length($5)-1)}')
-    numPogo=$(ls -l /sbin/.magisk/mirror/data/app/ | grep com.nianticlabs.pokemongo | wc -l)
+    cpuPogoPct=$(dumpsys cpuinfo | grep 'com.nianticlabs.pokemongo' | awk '{print (cut $3 -f1)}')
+    cpuApct=$(dumpsys cpuinfo | grep 'com.pokemod.atlas' | awk '{print (cut $1 -f1)}')
+    diskSysPct=$(df -h | grep /dev/root | awk '{print (cut $5 -f1)}')
+    diskDataPct=$(df -h | grep /dev/block/data | awk '{print (cut $5 -f1)}')
+    numPogo=$(ls -l /data/app/ | grep com.nianticlabs.pokemongo | wc -l)
 # aconf.log
     reboot=$(grep 'Device rebooted' $aconf_log | wc -l)
 # atlas config
@@ -100,13 +102,17 @@ while true
     "deviceName": "${deviceName}",
     "arch": "${arch}",
     "productmodel": "${productmodel}",
+    "android_version": "${android_version}",
     "atlasSh": "${atlasSh}",
     "atlas55": "${atlas55}",
-    "atlas42": "${atlas42}",
+    "atlas49": "${atlas49}",
     "monitor": "${monitor}",
     "whversion": "${whversion}",
     "pogo": "${pogo}",
     "atlas": "${atlas}",
+    "playstore_enabled": "${playstore_enabled}",
+    "playstore": "${playstore}",
+    "proxyinfo": "${proxyinfo}",
     "temperature": "${temperature}",
     "magisk": "${magisk}",
     "magisk_modules": "${magisk_modules}",
@@ -115,8 +121,6 @@ while true
     "ip": "${ip}",
     "ext_ip": "${ext_ip}",
     "hostname": "${hostname}",
-    "playstore": "${playstore}",
-    "proxyinfo": "${proxyinfo}",
 
     "memTot": "${memTot}",
     "memFree": "${memFree}",
