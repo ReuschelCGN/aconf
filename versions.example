@@ -9,6 +9,9 @@ update_check_interval=3600
 discord_webhook=""
 debug=false
 
+# Settings for use eMagisk
+useeMagisk=false
+
 # Settings for atvdetails sender (port and basic auth, user+pass, are optional)
 useSender=false
 atvdetails_interval=900
