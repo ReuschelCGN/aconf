@@ -2,7 +2,6 @@
 # version 1.0.0
 
 useragent='Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:53.0) Gecko/20100101 Firefox/53.0'
-magisk='/sbin/magisk'
 initdir='/sdcard/initrom'
 url_playintegrityfix='https://github.com/ReuschelCGN/aconf/releases/download/v2/PlayIntegrityFix_v12.3.zip'
 logfile=$initdir/rom_install.log
@@ -81,7 +80,6 @@ switch_magisk_modules() {
         touch $initdir/playintegrityfix_done
     else
         log 'PlayIntegrityFix Zip fehlt, oder Modul schon vorhanden.'
-        log 'Überspringe PlayIntegrityFix installation.'
     fi
 }
 
