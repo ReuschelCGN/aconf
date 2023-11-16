@@ -6,7 +6,6 @@ logfile="/sdcard/vm.log"
 initdir="/sdcard/initrom"
 useragent="Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:53.0) Gecko/20100101 Firefox/53.0"
 vmconf="/data/data/de.vahrmap.vmapper/shared_prefs/config.xml"
-pdconf="/data/data/com.mad.pogodroid/shared_prefs/com.mad.pogodroid_preferences.xml"
 lastResort="/data/local/vm_last_resort"
 customConfig="/data/local/vm_custom_config"
 
