@@ -1,7 +1,7 @@
 #!/system/bin/sh
 # version 1.6.0
 # rom version
-romver="2.0.14"
+romver="2.0.17"
 logfile="/sdcard/vm.log"
 initdir="/sdcard/initrom"
 useragent="Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:53.0) Gecko/20100101 Firefox/53.0"
