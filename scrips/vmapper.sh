@@ -1,5 +1,5 @@
 #!/system/bin/sh
-# version 14.7.8
+# version 14.7.9
 
 #Version checks
 Ver49vmapper="1.6.0"
@@ -481,15 +481,14 @@ if [ -d /data/data/de.vahrmap.vmapper/ ] ;then
    policy=$(sqlite3 /data/adb/magisk.db "SELECT policy FROM policies where uid = '$uid'")
    if [[ $policy == "" ]] ;then
       echo "`date +%Y-%m-%d_%T` vmapper incorectly or not added to su list, adding it and reboot device" >> $logfile
-      sqlite3 /data/adb/magisk.db "DELETE FROM policies where package_name = 'de.vahrmap.vmapper'"
-      sqlite3 /data/adb/magisk.db "INSERT INTO policies (uid,package_name,policy,until,logging,notification) VALUES('$uid','de.vahrmap.vmapper',2,0,1,1)"
+      sqlite3 /data/adb/magisk.db "DELETE FROM policies where uid = '$uid'"
+      sqlite3 /data/adb/magisk.db "INSERT INTO policies (uid,policy,until,logging,notification) VALUES('$uid',2,0,1,1)"
       reboot=1
    else
       if [[ $policy != 2 ]] ;then
         echo "`date +%Y-%m-%d_%T` incorrect policy for vmapper, changing it and reboot device" >> $logfile
-        sqlite3 /data/adb/magisk.db "DELETE FROM policies where package_name = 'de.vahrmap.vmapper'"
         sqlite3 /data/adb/magisk.db "DELETE FROM policies where uid = '$uid'"
-        sqlite3 /data/adb/magisk.db "INSERT INTO policies (uid,package_name,policy,until,logging,notification) VALUES('$uid','de.vahrmap.vmapper',2,0,1,1)"
+        sqlite3 /data/adb/magisk.db "INSERT INTO policies (uid,until,logging,notification) VALUES('$uid',2,0,1,1)"
         reboot=1
       fi
    fi
