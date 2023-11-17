@@ -141,8 +141,8 @@ install_atlas(){
 
   # Grant su access + settings
   auid="$(dumpsys package com.pokemod.atlas | grep userId | awk -F'=' '{print $2}')"
-  magisk --sqlite "DELETE from policies WHERE package_name='com.pokemod.atlas'"
-  magisk --sqlite "INSERT INTO policies (uid,package_name,policy,until,logging,notification) VALUES($auid,'com.pokemod.atlas',2,0,1,0)"
+  magisk --sqlite "DELETE from policies WHERE uid=$auid"
+  magisk --sqlite "INSERT INTO policies (uid,policy,until,logging,notification) VALUES($auid,2,0,1,0)"
   pm grant com.pokemod.atlas android.permission.READ_EXTERNAL_STORAGE
   pm grant com.pokemod.atlas android.permission.WRITE_EXTERNAL_STORAGE
   logger "atlas granted su and settings set"
