@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS `ATVsummary` (
   `temperature` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `magisk` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `magisk_modules` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `pifversion varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `pifversion` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `macw` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `mace` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `ip` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
