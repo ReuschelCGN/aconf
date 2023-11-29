@@ -93,7 +93,7 @@ checkupdate(){
       done
    }
 
-   if [ $(ver $1) -lt $(ver $2) ]; then
+   if [ $(ver $1) -le $(ver $2) ]; then
       need_update=1
    else
       need_update=0
