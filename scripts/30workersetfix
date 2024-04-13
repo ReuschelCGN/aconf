@@ -26,7 +26,6 @@ if [ -d /data/data/org.mozilla.firefox/ ]; then
         worker=20
         while [ $i -lt $worker ]; do
             magisk --sqlite "REPLACE INTO denylist (package_name, process) VALUES ('org.mozilla.firefox', 'org.mozilla.firefox:worker$i');"
-            sleep 1
             i=`expr $i + 1`
         done
         touch $initdir/worker_settings_done
