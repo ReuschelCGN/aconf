@@ -13,7 +13,7 @@ wait_for_sdcard() {
 
 wait_for_sdcard
 
-if [ ! -f $initdir ]; then
+if [ ! -d $initdir ]; then
     mkdir -p $initdir
 fi
 
