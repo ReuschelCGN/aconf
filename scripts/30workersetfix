@@ -17,8 +17,6 @@ if [ ! -f $initdir ]; then
     mkdir -p $initdir
 fi
 
-sleep 120
-
 if [ -d /data/data/org.mozilla.firefox/ ]; then
     # add worker to Denylist
     if [ ! -f $initdir/worker_settings_done ]; then
