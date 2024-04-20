@@ -34,7 +34,7 @@ if [ -d /data/data/org.mozilla.firefox/ ]; then
         done
         touch $initdir/worker_settings_done
         sleep 2
-#        reboot
+        reboot
     fi
 fi
 
