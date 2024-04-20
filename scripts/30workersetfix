@@ -23,7 +23,7 @@ if [ -d /data/data/org.mozilla.firefox/ ]; then
         i=0
         worker=10
         while [ $i -lt $worker ]; do
-            magisk --sqlite "REPLACE INTO denylist (package_name, process) VALUES ('org.mozilla.firefox', 'org.mozilla.firefox:worker$i');"
+            magisk --sqlite "REPLACE INTO denylist (package_name, process) VALUES ('org.mozilla.firefox', 'org.mozilla.firefox:worker$icom.nianticlabs.pokemongo');"
             i=`expr $i + 1`
         done
         touch $initdir/worker_settings_done
