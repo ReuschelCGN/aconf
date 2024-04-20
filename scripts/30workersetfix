@@ -25,10 +25,10 @@ if [ -d /data/data/org.mozilla.firefox/ ]; then
         # set new worker hides
         i=0
         worker=10
-        process_name='org.mozilla.firefox:worker'
-        process_name+=$i
-        process_name+='com.nianticlabs.pokemongo'
         while [ $i -lt $worker ]; do
+            process_name='org.mozilla.firefox:worker'
+            process_name+=$i
+            process_name+='com.nianticlabs.pokemongo'
             magisk --sqlite "REPLACE INTO denylist (package_name, process) VALUES ('org.mozilla.firefox', '$process_name');"
             i=`expr $i + 1`
         done
