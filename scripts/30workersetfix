@@ -24,7 +24,7 @@ if [ -d /data/data/org.mozilla.firefox/ ]; then
         magisk --sqlite "delete from denylist WHERE package_name = 'org.mozilla.firefox'"
         # set new worker hides
         i=0
-        worker=20
+        worker=75
         while [ $i -lt $worker ]; do
             process_name='com.nianticlabs.pokemongo '
             process_name+=$i
